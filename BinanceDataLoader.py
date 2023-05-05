@@ -10,7 +10,6 @@ import time
 # config logging
 logging.basicConfig(level=logging.DEBUG, 
                     filename="CryptoDataLoader.log",
-                    filemode="w",
                     format="%(asctime)s %(levelname)s %(message)s",
                     force=True
 )
