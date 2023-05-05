@@ -4,6 +4,7 @@ import MySQLdb
 import logging
 import json
 import os
+import time
 
 
 logging.basicConfig(level=logging.DEBUG, 
@@ -15,19 +16,25 @@ logging.basicConfig(level=logging.DEBUG,
 
 
 def on_message(ws, message):
+    start_time = time.time()
+
     data = json.loads(message)
 
     db = MySQLdb.connect(host="localhost", user="root", passwd="", db="prices")
     cursor = db.cursor()
 
+    symbols_updated = 0
     for crypto_symbol in data:
         cursor.execute(f"INSERT INTO `binance` (`symbol`, `price`) VALUES ('{crypto_symbol['s']}', {crypto_symbol['c']}) ON DUPLICATE KEY UPDATE `price` = {crypto_symbol['c']};")
 
-        print(f"{crypto_symbol['s']} = {crypto_symbol['c']}")
         logging.debug(f"{crypto_symbol['s']} = {crypto_symbol['c']}")
+        symbols_updated += 1
     
     db.commit()
     db.close()
+
+    print(f"{symbols_updated} Symbols Updated in {round(time.time() - start_time, 3)} s.")
+    logging.info(f"{symbols_updated} Symbols Updated in {time.time() - start_time} s.")
 
 
 def on_close(ws):
